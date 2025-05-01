@@ -1,8 +1,10 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
 	import { currentSlide } from '$lib';
 	const slides = [{ content: 'Slide 1' }, { content: 'Slide 2' }, { content: 'Slide 3' }];
 
+	let socket: WebSocket;
 	let isHovered = $state(false);
 
 	$effect(() => {
@@ -11,6 +13,14 @@
 		} else if ($currentSlide < 0) {
 			currentSlide.set(0);
 		}
+	});
+
+	onMount(() => {
+		socket = new WebSocket('ws://localhost:1999/party/local-slide');
+
+		socket.onmessage = (event) => {
+			currentSlide.set(JSON.parse(event.data).slide);
+		};
 	});
 </script>
 
